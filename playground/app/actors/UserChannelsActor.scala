@@ -77,19 +77,21 @@ class UserChannelsActor extends Actor {
   private def startSearching(startSearch: StartSearch) =
     Concurrent.unicast[JsValue](
       onStart = (c) => {
-        channels += (startSearch.id -> c)
-        searchActor ! startSearch
-        tickGenerator ! TickStart // start the tick running
-      },
+      channels += (startSearch.id -> c)
+      searchActor ! startSearch
+      tickGenerator ! TickStart // start the tick running
+    },
       onComplete = {
-        self ! StopSearch(startSearch.id)
-      },
+      self ! StopSearch(startSearch.id)
+    },
       onError = (str, in) => {
-        self ! StopSearch(startSearch.id)
-      }).onDoneEnumerating(
-        callback = {
-          self ! StopSearch(startSearch.id)
-        })
+      self ! StopSearch(startSearch.id)
+    }
+    ).onDoneEnumerating(
+      callback = {
+      self ! StopSearch(startSearch.id)
+    }
+    )
 
   private def stopSearching(stopSearch: StopSearch) {
     channels -= stopSearch.id

@@ -107,7 +107,8 @@ object MongoFS extends Controller {
 
         // stream the data through the proxy
         Iteratee.fold[Array[Byte], OutputStream](
-          mongoFileWriter.getOutputStream()) { (os, data) =>
+          mongoFileWriter.getOutputStream()
+        ) { (os, data) =>
             // println("Writing data chunk");
             os.write(data)
             os

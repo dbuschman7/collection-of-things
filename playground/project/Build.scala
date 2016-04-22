@@ -1,20 +1,24 @@
 import sbt._
-import Keys._
 import sbt.Keys._
 import java.io.PrintWriter
 import java.io.File
 import play.Play.autoImport._
-import PlayKeys._
-import sys.process.stringSeqToProcess
-import sbtbuildinfo.Plugin._
-
+import play.sbt.PlayImport._
+import sbtbuildinfo._
+import sbtbuildinfo.BuildInfoKeys._
+import play.sbt.routes.RoutesKeys._
+import com.typesafe.sbt.packager.Keys._
+import com.typesafe.sbt.SbtScalariform
+import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtNativePackager._
-import NativePackagerKeys._
+import com.typesafe.sbt.packager.docker._
 
 
 object ApplicationBuild extends Build {
 
-    
+  scalaVersion := "2.11.7"
+
   val appName         = "playground"
 
   val branch = ""; // "git rev-parse --abbrev-ref HEAD".!!.trim
@@ -25,9 +29,6 @@ object ApplicationBuild extends Build {
   val minor = 1
   val patch = 0
   val appVersion = s"$major.$minor.$patch-$commit"
-
-  val scalaVersion = scala.util.Properties.versionString.substring(8) 
-
 
   println()
   println(s"App Name      => ${appName}")
@@ -56,34 +57,25 @@ object ApplicationBuild extends Build {
 
   val playground = Project("playground", file("."))
     .enablePlugins(play.PlayScala)
+    .enablePlugins(play.PlayScala, BuildInfoPlugin)
     .settings(scalacOptions ++= scalaBuildOptions)
     .settings(
         version := appVersion,
         libraryDependencies ++= appDependencies
     )
-    .settings( buildInfoSettings: _*)
+    .settings(
+      // BuildInfo
+      buildInfoPackage := "io.timeli.ingest",
+      buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion) :+ BuildInfoKey.action("buildTime") {
+        System.currentTimeMillis
+      }
+    )
     .settings( 
             maintainer := "David Buschman", // setting a maintainer which is used for all packaging types
             dockerExposedPorts in Docker := Seq(9000, 9443), // exposing the play ports
             dockerBaseImage := "play_java_mongo_db/latest",
             dockerRepository := Some("docker.transzap.com:2375/play_java_mongo_db")
     )
-    .settings(
-      sourceGenerators in Compile <+= buildInfo,
-      buildInfoPackage := "me.lightspeed7.version",
-      buildInfoKeys ++= Seq[BuildInfoKey] (
-        "builtAt" -> {
-          val dtf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-          dtf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"))
-          dtf.format(new java.util.Date())
-        },
-        "builtAtMillis" -> { System.currentTimeMillis() },
-        "major" -> { major },
-        "minor" -> { minor },
-        "patch" -> { patch },
-        "commit" -> { commit }
-        )
-      )    
     .settings(
       resolvers += "MongoFS Interim Maven Repo" at "https://github.com/dbuschman7/mvn-repo/raw/master"
     )

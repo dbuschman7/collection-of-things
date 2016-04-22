@@ -27,7 +27,7 @@ class MongoCursorWrapped(id: UUID, sendMatch: ActorSelection, queryParams: Array
       pDoc.get("status").toString, //
       pDoc.get("device").toString, //
       pDoc.get("agent").toString //
-      )
+    )
 
     // search all combinations of params and terms for any match
     val found: Boolean = queryParams.foldLeft(false)((acc, param) => acc | set.contains(param))
@@ -44,7 +44,7 @@ class MongoCursorWrapped(id: UUID, sendMatch: ActorSelection, queryParams: Array
       Integer.parseInt(pDoc.get("time").toString),
       pDoc.get("path").toString,
       Integer.parseInt(pDoc.get("status").toString) //
-      )
+    )
 
     sendMatch ! new SearchMatch(data, List(id))
   }

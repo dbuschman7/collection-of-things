@@ -63,7 +63,10 @@ class ElasticsearchActor extends Actor {
     val query = Json.obj(
       "query" -> Json.obj(
         "query_string" -> Json.obj(
-          "query" -> searchString)))
+          "query" -> searchString
+        )
+      )
+    )
 
     val client: WSClient = new NingWSClient(new AsyncHttpClientConfig.Builder().build())
     val future: Future[WSResponse] = client //

@@ -100,7 +100,8 @@ class StatisticsActor extends Actor {
 
         // basic counts
         "requests" -> getValue("requests"),
-        "totalResponseTime" -> getValue("totalResponseTime"));
+        "totalResponseTime" -> getValue("totalResponseTime")
+      );
 
     // println("Stringify = " + Json.stringify(retVal))
     channels ! Statistics(retVal)

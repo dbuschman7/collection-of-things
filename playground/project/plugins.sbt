@@ -1,22 +1,18 @@
 
+// The Play plugin
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.2")
+
+// The BuildInfo Plugin
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.5.0")
+
+// Dependency tree plugin
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.1")
+
+// Code Formatter
+addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.6.0")
+
 // Comment to get more information during initialization
 logLevel := Level.Warn
-
-// The Typesafe/Sonatype repositories
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-
-resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
-
-// Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.3")
-
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.5.0")
-
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.4")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.7.4")
-
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.3.2")
 
 // web plugins
 

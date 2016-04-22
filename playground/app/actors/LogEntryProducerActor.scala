@@ -52,7 +52,8 @@ class LogEntryProducerActor extends Actor {
       randomElement(userAgents),
       randomResponseTime,
       randomElement(paths),
-      randomElement(statuses))
+      randomElement(statuses)
+    )
   }
 
   private def randomElement[A](list: Array[A]) = {
