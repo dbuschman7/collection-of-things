@@ -149,8 +149,8 @@ public class MailMessage {
     }
 
     /**
-     * @param attachmentFiles
-     * @throws Exception
+     * @param attachmentFiles comment
+     * @throws Exception comment
      */
     public void setAttachmentFiles(List<String> attachmentFiles) {
 
@@ -175,8 +175,8 @@ public class MailMessage {
     /**
      * A quick marshaling hack to convert to string
      * 
-     * @return
-     * @throws Exception
+     * @return comment
+     * @throws Exception comment
      */
     public String marshal()
             throws Exception {
