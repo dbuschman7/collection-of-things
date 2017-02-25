@@ -13,21 +13,21 @@ import java.util.concurrent.TimeUnit
 
 class StreamProcessorTest extends FunSuite with Matchers with BeforeAndAfterAll {
 
+  // ActorSystem
   implicit val as = ActorSystem("StreamProcessorTest")
   implicit val mat = ActorMaterializer()
+  override def afterAll = Await.result(as.terminate(), Duration.Inf)
 
   val Fmt = java.text.NumberFormat.getIntegerInstance
 
-  override def afterAll = Await.result(as.terminate(), Duration.Inf)
-
-  def timeMe(units: TimeUnit = TimeUnit.SECONDS)(in: Unit ⇒ Seq[(String, Int)]) {
+  def timeMe(units: TimeUnit = TimeUnit.SECONDS)(in: TimeUnit ⇒ Seq[(String, Int)]) = {
     val start = System.currentTimeMillis()
     try {
-      in()
+      in(units)
     } finally {
       val stop = System.currentTimeMillis()
       val dur = Duration.apply(stop - start, TimeUnit.MILLISECONDS).toUnit(units).toString
-      println("Timing - ${dur}")
+      println(s"Timing - ${dur}")
     }
   }
 
@@ -37,18 +37,15 @@ class StreamProcessorTest extends FunSuite with Matchers with BeforeAndAfterAll 
     val SrcFile: String = "/Users/david/shakespeare.txt"
     val topResults = 30
 
-    val start = System.currentTimeMillis()
-    try {
-      val results = StreamProcessor.extractWordFromFile(Paths.get(SrcFile), 100000, topResults)
-      results.size should be(topResults)
-      results.map {
-        case (word, count) ⇒
-          println(f"${word}%15s : ${Fmt.format(count)}%7s")
-      }
-    } finally {
-      val stop = System.currentTimeMillis()
-      val dur = Duration.apply(stop - start, TimeUnit.MILLISECONDS).toUnit(TimeUnit.SECONDS).toString
-      println(s"Timing - ${dur} Seconds")
+    val results = timeMe(TimeUnit.SECONDS) { unit ⇒
+      val stream = StreamProcessor.extractWordFromFile(Paths.get(SrcFile), 100000, topResults)
+      Await.result(stream, Duration.Inf)
+    }
+
+    results.size should be(topResults)
+    results.map {
+      case (word, count) ⇒
+        println(f"${word}%15s : ${Fmt.format(count)}%7s")
     }
   }
 }

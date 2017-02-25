@@ -11,7 +11,7 @@ import akka.util.ByteString
 
 object StreamProcessor {
 
-  def extractWordFromFile(filename: Path, maxBranches:Int, topResults: Int = 20)(implicit mat: ActorMaterializer) = {
+  def extractWordFromFile(filename: Path, maxBranches: Int, topResults: Int = 20)(implicit mat: ActorMaterializer) = {
     implicit val as = mat.system
     implicit val ec = as.dispatcher
 
@@ -37,13 +37,11 @@ object StreamProcessor {
       .via(filterLowCounts)
       .runWith(Sink.seq)
 
-    val step2 = step1
+    step1
       .map { results ⇒
         results
           .sortBy(0 - _._2)
           .take(topResults)
       }
-
-    Await.result(step2, Duration.Inf)
   }
 }
