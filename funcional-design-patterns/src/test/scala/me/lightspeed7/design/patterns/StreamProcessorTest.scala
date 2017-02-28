@@ -10,6 +10,9 @@ import org.scalatest.{ BeforeAndAfterAll, FunSuite, Matchers }
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import java.util.concurrent.TimeUnit
+import scala.util.Try
+import scala.util.Failure
+import scala.util.Success
 
 class StreamProcessorTest extends FunSuite with Matchers with BeforeAndAfterAll {
 
@@ -22,13 +25,9 @@ class StreamProcessorTest extends FunSuite with Matchers with BeforeAndAfterAll 
 
   def timeMe(units: TimeUnit = TimeUnit.SECONDS)(in: TimeUnit ⇒ Seq[(String, Int)]) = {
     val start = System.currentTimeMillis()
-    try {
-      in(units)
-    } finally {
-      val stop = System.currentTimeMillis()
-      val dur = Duration.apply(stop - start, TimeUnit.MILLISECONDS).toUnit(units).toString
-      println(s"Timing - ${dur}")
-    }
+    val result = Try(in(units))
+    println(s"Timing - ${Duration.apply(System.currentTimeMillis() - start, TimeUnit.MILLISECONDS).toUnit(units)} seconds")
+    result
   }
 
   test("Process Shakespeare") {
@@ -37,15 +36,19 @@ class StreamProcessorTest extends FunSuite with Matchers with BeforeAndAfterAll 
     val SrcFile: String = "/Users/david/shakespeare.txt"
     val topResults = 30
 
-    val results = timeMe(TimeUnit.SECONDS) { unit ⇒
+    val results = timeMe() { unit ⇒
       val stream = StreamProcessor.extractWordFromFile(Paths.get(SrcFile), 100000, topResults)
       Await.result(stream, Duration.Inf)
     }
 
-    results.size should be(topResults)
-    results.map {
-      case (word, count) ⇒
-        println(f"${word}%15s : ${Fmt.format(count)}%7s")
+    results match {
+      case Failure(ex) ⇒ fail(ex)
+      case Success(results) ⇒
+        results.size should be(topResults)
+        results.map {
+          case (word, count) ⇒
+            println(f"${word}%15s : ${Fmt.format(count)}%7s")
+        }
     }
   }
 }

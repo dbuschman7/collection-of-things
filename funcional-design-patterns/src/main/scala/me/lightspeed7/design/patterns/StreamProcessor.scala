@@ -25,11 +25,11 @@ object StreamProcessor {
 
     def groupByWord(maxWords: Int) = Flow[String]
       .groupBy(maxWords, identity)
-      .map(_ -> 1)
+      .map((_ -> 1))
       .reduce((l, r) ⇒ (l._1, l._2 + r._2))
       .mergeSubstreams
 
-    val step1 = source
+    val wordCounts = source
       .via(framing)
       .via(filterEmptyLines)
       .via(parseWordsFromLine)
@@ -37,7 +37,7 @@ object StreamProcessor {
       .via(filterLowCounts)
       .runWith(Sink.seq)
 
-    step1
+    wordCounts
       .map { results ⇒
         results
           .sortBy(0 - _._2)
